@@ -104,7 +104,7 @@ nav { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px
 .item:hover { background: var(--surface2); color: var(--text); }
 .item.ativo { background: var(--accent-soft); color: var(--accent-text); }
 .eu { display: flex; align-items: center; gap: 10px; border-top: 1px solid var(--line); padding: 12px 6px 0; }
-.conteudo { padding: 28px 32px 60px; max-width: 1280px; width: 100%; }
+.conteudo { padding: 28px 32px 60px; width: 100%; min-width: 0; }
 .topo-celular, .veu { display: none; }
 @media (max-width: 900px) {
   .casca { grid-template-columns: 1fr; }
