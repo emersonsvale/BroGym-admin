@@ -617,9 +617,10 @@ begin
   perform adm_exigir('conteudo.exercicios');
   if coalesce(trim(p_dados ->> 'nome'), '') = '' then raise exception 'Dê um nome pro exercício.'; end if;
   if p_id is null then
-    insert into exercises (name, name_en, name_es, category_id, media_url, media_type, is_active)
+    -- media_type é coluna calculada pelo banco a partir do link.
+    insert into exercises (name, name_en, name_es, category_id, media_url, is_active)
     values (trim(p_dados ->> 'nome'), nullif(trim(p_dados ->> 'nome_en'), ''), nullif(trim(p_dados ->> 'nome_es'), ''),
-            (p_dados ->> 'categoria_id')::uuid, nullif(p_dados ->> 'media_url', ''), coalesce(nullif(p_dados ->> 'media_type', ''), 'image'),
+            (p_dados ->> 'categoria_id')::uuid, nullif(p_dados ->> 'media_url', ''),
             coalesce((p_dados ->> 'ativo')::boolean, true))
     returning id into v;
   else
@@ -629,7 +630,6 @@ begin
       name_es = nullif(trim(p_dados ->> 'nome_es'), ''),
       category_id = (p_dados ->> 'categoria_id')::uuid,
       media_url = nullif(p_dados ->> 'media_url', ''),
-      media_type = coalesce(nullif(p_dados ->> 'media_type', ''), media_type),
       is_active = coalesce((p_dados ->> 'ativo')::boolean, is_active)
     where id = p_id returning id into v;
   end if;
