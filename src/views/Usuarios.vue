@@ -16,7 +16,7 @@ const POR = 50
 const carregando = ref(false)
 const ordem = ref('criado_desc')
 
-const filtros = { todos: 'Todos', novos: 'Novos (7d)', pro: 'PRO', pagos: 'Pagantes', anonimos: 'Sem cadastro', inativos: 'Sumidos (14d)', banidos: 'Banidos' }
+const filtros = { todos: 'Todos', novos: 'Novos (7d)', pro: 'PRO', pagos: 'Pagantes', anonimos: 'Sem cadastro', inativos: 'Sumidos (14d)', sem_onboarding: 'Sem onboarding', banidos: 'Banidos' }
 
 async function carregar() {
   carregando.value = true
@@ -61,6 +61,7 @@ onMounted(carregar)
           <th class="ordena" @click="ordenar('nome', 'asc')">Pessoa{{ seta('nome') }}</th><th>Plano</th><th>Origem</th>
           <th class="num ordena" @click="ordenar('treinos')">Treinos{{ seta('treinos') }}</th>
           <th class="ordena" @click="ordenar('criado')">Criou{{ seta('criado') }}</th>
+          <th class="ordena" @click="ordenar('onboarding')" title="Quando terminou o onboarding. ~ = data aproximada (contas antigas)">Onboarding{{ seta('onboarding') }}</th>
           <th class="ordena" @click="ordenar('acesso')">Último acesso{{ seta('acesso') }}</th>
         </tr></thead>
         <tbody>
@@ -82,9 +83,10 @@ onMounted(carregar)
             <td><small>{{ nomesOrigem(u.origem || 'orgânico') }}</small></td>
             <td class="num">{{ num(u.treinos) }}</td>
             <td><small>{{ data(u.criado_em) }}</small></td>
+            <td><small :title="u.onboarding_em ? dataHora(u.onboarding_em) + (u.onboarding_aprox ? ' (aproximada: 1º treino gerado pela IA)' : '') : ''">{{ u.onboarding_em ? (u.onboarding_aprox ? '~' : '') + data(u.onboarding_em) : (u.onboarding_feito ? 'Sim (sem data)' : '—') }}</small></td>
             <td><small :title="dataHora(u.ultimo_acesso)">{{ desde(u.ultimo_acesso) }}</small></td>
           </tr>
-          <tr v-if="!lista.length && !carregando"><td colspan="6" class="vazio">Ninguém encontrado.</td></tr>
+          <tr v-if="!lista.length && !carregando"><td colspan="7" class="vazio">Ninguém encontrado.</td></tr>
         </tbody>
       </table>
       <div v-if="carregando" class="carregando"><div class="spinner" /></div>
