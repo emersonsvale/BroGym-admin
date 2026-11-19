@@ -96,7 +96,7 @@ onMounted(() => { carregar(); carregarPaises() })
             </td>
             <td><small>{{ nomesOrigem(u.origem || 'orgânico') }}</small></td>
             <td :title="[u.cidade, u.estado, nomePais(u.pais)].filter(Boolean).join(', ') + (u.pais_fonte === 'aparelho' ? ' · país pelo celular' : u.pais_fonte === 'ip' ? ' · pelo IP' : '') + (u.rede ? ' · rede: ' + u.rede : '')">
-              <template v-if="u.pais"><Pais :codigo="u.pais" curto /><small v-if="u.cidade" class="corta" style="display: block; max-width: 150px">{{ u.cidade }}</small></template>
+              <template v-if="u.pais"><Pais :codigo="u.pais" curto /><small v-if="u.cidade" class="corta" style="display: block; max-width: 150px">{{ u.cidade }}</small><span v-if="/google/i.test(u.rede || '')" class="tag" title="IP da rede do Google: quase sempre o robô de teste da Play Store">robô Play?</span></template>
               <small v-else class="muted">—</small>
             </td>
             <td class="num">{{ num(u.treinos) }}</td>

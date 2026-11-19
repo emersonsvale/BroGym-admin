@@ -32,7 +32,7 @@ const localDica = computed(() => {
   const partes = []
   if (x.pais_aparelho) partes.push(`País pelo celular: ${nomePais(x.pais_aparelho)}`)
   if (x.pais_ip) partes.push(`Pelo IP: ${[x.cidade, x.estado, nomePais(x.pais_ip)].filter(Boolean).join(', ')} (aproximado)`)
-  if (x.geo_rede) partes.push(`Rede: ${x.geo_rede}`)
+  if (x.geo_rede) partes.push(`Rede: ${x.geo_rede}${/google/i.test(x.geo_rede) ? ' (provável robô de teste da Play Store)' : ''}`)
   if (x.geo_em) partes.push(`Atualizado em ${dataHora(x.geo_em)}`)
   return partes.join(' · ')
 })
