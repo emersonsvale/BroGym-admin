@@ -17,5 +17,12 @@ router.beforeEach(async (to) => {
 
 router.afterEach((to) => { document.title = `${to.meta?.nome ?? 'Admin'} · BroGym Admin` })
 
+// Saiu versão nova do painel com a página aberta: recarrega uma vez em vez de quebrar.
+window.addEventListener('vite:preloadError', (e) => {
+  e.preventDefault()
+  if (!sessionStorage.getItem('recarregou')) { sessionStorage.setItem('recarregou', '1'); location.reload() }
+})
+window.addEventListener('load', () => setTimeout(() => sessionStorage.removeItem('recarregou'), 5000))
+
 vigiarInatividade()
 createApp(App).use(router).mount('#app')
