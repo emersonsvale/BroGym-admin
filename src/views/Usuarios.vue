@@ -2,7 +2,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { rpc } from '../lib/supabase'
-import { num, desde, data, erro, nomesOrigem } from '../lib/util'
+import { num, desde, data, dataHora, erro, nomesOrigem } from '../lib/util'
 import Avatar from '../components/Avatar.vue'
 import Icone from '../components/Icone.vue'
 
@@ -14,19 +14,28 @@ const total = ref(0)
 const pagina = ref(0)
 const POR = 50
 const carregando = ref(false)
+const ordem = ref('criado_desc')
 
 const filtros = { todos: 'Todos', novos: 'Novos (7d)', pro: 'PRO', pagos: 'Pagantes', anonimos: 'Sem cadastro', inativos: 'Sumidos (14d)', banidos: 'Banidos' }
 
 async function carregar() {
   carregando.value = true
   try {
-    lista.value = await rpc('adm_usuarios', { p_busca: busca.value || null, p_filtro: filtro.value, p_limite: POR, p_offset: pagina.value * POR })
+    lista.value = await rpc('adm_usuarios', { p_busca: busca.value || null, p_filtro: filtro.value, p_limite: POR, p_offset: pagina.value * POR, p_ordem: ordem.value })
     total.value = lista.value[0]?.total ?? 0
   } catch (e) { erro(e) } finally { carregando.value = false }
 }
 let t
 watch(busca, () => { clearTimeout(t); t = setTimeout(() => { pagina.value = 0; carregar() }, 300) })
 watch(filtro, () => { pagina.value = 0; carregar() })
+// Clicar no título da coluna ordena; clicar de novo inverte.
+function ordenar(campo, primeiro = 'desc') {
+  const [atual, dir] = ordem.value.split('_')
+  ordem.value = atual === campo ? `${campo}_${dir === 'desc' ? 'asc' : 'desc'}` : `${campo}_${primeiro}`
+  pagina.value = 0
+  carregar()
+}
+const seta = (campo) => (ordem.value.startsWith(campo + '_') ? (ordem.value.endsWith('desc') ? ' ↓' : ' ↑') : '')
 onMounted(carregar)
 </script>
 
@@ -48,7 +57,12 @@ onMounted(carregar)
 
     <div class="tabela-wrap">
       <table>
-        <thead><tr><th>Pessoa</th><th>Plano</th><th>Origem</th><th class="num">Treinos</th><th>Criou</th><th>Último acesso</th></tr></thead>
+        <thead><tr>
+          <th class="ordena" @click="ordenar('nome', 'asc')">Pessoa{{ seta('nome') }}</th><th>Plano</th><th>Origem</th>
+          <th class="num ordena" @click="ordenar('treinos')">Treinos{{ seta('treinos') }}</th>
+          <th class="ordena" @click="ordenar('criado')">Criou{{ seta('criado') }}</th>
+          <th class="ordena" @click="ordenar('acesso')">Último acesso{{ seta('acesso') }}</th>
+        </tr></thead>
         <tbody>
           <tr v-for="u in lista" :key="u.id" class="clicavel" @click="router.push(`/usuarios/${u.id}`)">
             <td>
@@ -68,7 +82,7 @@ onMounted(carregar)
             <td><small>{{ nomesOrigem(u.origem || 'orgânico') }}</small></td>
             <td class="num">{{ num(u.treinos) }}</td>
             <td><small>{{ data(u.criado_em) }}</small></td>
-            <td><small>{{ desde(u.ultimo_acesso) }}</small></td>
+            <td><small :title="dataHora(u.ultimo_acesso)">{{ desde(u.ultimo_acesso) }}</small></td>
           </tr>
           <tr v-if="!lista.length && !carregando"><td colspan="6" class="vazio">Ninguém encontrado.</td></tr>
         </tbody>
@@ -86,5 +100,7 @@ onMounted(carregar)
 
 <style scoped>
 .busca { display: flex; align-items: center; gap: 8px; background: var(--surface2); border: 1px solid var(--line); border-radius: 12px; padding: 0 12px; color: var(--muted); }
+th.ordena { cursor: pointer; user-select: none; }
+th.ordena:hover { color: var(--text); }
 .busca input { border: 0; background: transparent; box-shadow: none; padding: 11px 0; }
 </style>

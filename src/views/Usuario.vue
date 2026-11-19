@@ -17,7 +17,11 @@ const ocupado = ref(false)
 
 async function carregar() {
   carregando.value = true
-  try { u.value = await rpc('adm_usuario', { p_id: route.params.id }) } catch (e) { erro(e) } finally { carregando.value = false }
+  try {
+    const [ficha, acesso] = await Promise.all([rpc('adm_usuario', { p_id: route.params.id }), rpc('adm_usuario_acesso', { p_id: route.params.id })])
+    ficha.ultimo_acesso = acesso
+    u.value = ficha
+  } catch (e) { erro(e) } finally { carregando.value = false }
 }
 onMounted(carregar)
 
@@ -132,7 +136,7 @@ const nomeFunil = { abriu: 'Abriu o app', onboarding: 'Fez onboarding', salvou_c
         <div class="card">
           <h3 style="margin-bottom: 10px">Perfil</h3>
           <div class="kv"><span>Criou a conta</span><strong>{{ dataHora(p.created_at) }}</strong></div>
-          <div class="kv"><span>Último acesso</span><strong>{{ desde(p.last_active) }}</strong></div>
+          <div class="kv"><span>Último acesso</span><strong :title="dataHora(u.ultimo_acesso)">{{ desde(u.ultimo_acesso) }}</strong></div>
           <div class="kv"><span>Último login</span><strong>{{ dataHora(u.ultimo_login) }}</strong></div>
           <div class="kv"><span>Sexo / idade</span><strong>{{ p.gender || '—' }} · {{ p.age || '—' }}</strong></div>
           <div class="kv"><span>Peso / altura</span><strong>{{ p.weight_kg || '—' }} kg · {{ p.height_cm || '—' }} cm</strong></div>
