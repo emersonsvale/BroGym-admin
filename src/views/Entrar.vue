@@ -9,7 +9,7 @@ const msgErro = ref('')
 
 async function google() {
   msgErro.value = ''
-  const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin } })
+  const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.origin + '/' } })
   if (error) msgErro.value = error.message
 }
 
@@ -18,7 +18,7 @@ async function link() {
   if (!email.value.includes('@')) { msgErro.value = 'Digite seu e-mail.'; return }
   ocupado.value = true
   // shouldCreateUser: false → o painel nunca cria conta nova.
-  const { error } = await sb.auth.signInWithOtp({ email: email.value.trim(), options: { shouldCreateUser: false, emailRedirectTo: location.origin } })
+  const { error } = await sb.auth.signInWithOtp({ email: email.value.trim(), options: { shouldCreateUser: false, emailRedirectTo: location.origin + '/' } })
   ocupado.value = false
   if (error) msgErro.value = error.message.includes('Signups not allowed') ? 'Esse e-mail não tem conta no BroGym.' : error.message
   else enviado.value = true
