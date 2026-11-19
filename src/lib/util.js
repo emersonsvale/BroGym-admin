@@ -47,3 +47,13 @@ export function confirmar({ titulo, texto = '', botao = 'Confirmar', perigo = fa
 }
 
 export const nomesOrigem = (o) => ({ 'orgânico': 'Orgânico', organico: 'Orgânico', 'play-organico': 'Play (orgânico)', 'apps.facebook.com': 'Anúncios Meta' }[o] || o)
+
+// Países (código ISO de 2 letras).
+let nomesPaises
+try { nomesPaises = new Intl.DisplayNames(['pt-BR'], { type: 'region' }) } catch { nomesPaises = null }
+export const nomePais = (c) => {
+  if (!c || c === '??') return 'Sem localização'
+  try { return nomesPaises?.of(c.toUpperCase()) || c } catch { return c }
+}
+// Imagem da bandeira (emoji de bandeira não aparece no Windows).
+export const bandeira = (c) => (c && /^[a-z]{2}$/i.test(c) ? `https://flagcdn.com/w40/${c.toLowerCase()}.png` : null)

@@ -1,10 +1,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { rpc, pode } from '../lib/supabase'
-import { num, pct, erro, nomesOrigem } from '../lib/util'
+import { num, pct, erro, nomesOrigem, nomePais } from '../lib/util'
 import Kpi from '../components/Kpi.vue'
 import Barras from '../components/Barras.vue'
 import Icone from '../components/Icone.vue'
+import Pais from '../components/Pais.vue'
 
 const r = ref(null)
 const serie = ref([])
@@ -47,6 +48,8 @@ const funilTotal = computed(() => funil.value.reduce((t, f) => {
 }, {}))
 
 const traduz = { male: 'Homem', female: 'Mulher', other: 'Outro', pt: 'Português', en: 'Inglês', es: 'Espanhol', weight_loss: 'Emagrecer', muscle_gain: 'Ganhar massa', endurance: 'Resistência', sport_performance: 'Performance', general_fitness: 'Saúde geral', strength: 'Força', flexibility: 'Flexibilidade', '—': 'Não informado' }
+const totalUsuarios = computed(() => (dist.value?.pais || []).reduce((a, x) => a + Number(x.n), 0) || 1)
+const maxCidade = computed(() => Math.max(1, ...(dist.value?.cidades || []).map((x) => Number(x.n))))
 const lista = (obj) => {
   const e = Object.entries(obj || {}).sort((a, b) => b[1] - a[1])
   const total = e.reduce((s, [, v]) => s + v, 0) || 1
@@ -153,6 +156,25 @@ const lista = (obj) => {
         </div>
       </div>
 
+      <div v-if="dist" class="grade" style="grid-template-columns: 1fr 1fr; margin-top: 14px">
+        <div class="card">
+          <div class="linha entre" style="margin-bottom: 10px"><h3>De onde são</h3><small class="muted">pelo celular ou IP</small></div>
+          <router-link v-for="x in dist.pais" :key="x.pais" :to="{ path: '/usuarios', query: { pais: x.pais } }" class="dist link-dist">
+            <div class="linha entre"><Pais :codigo="x.pais === '??' ? null : x.pais" /><small>{{ x.n }} · {{ pct(x.n, totalUsuarios) }}</small></div>
+            <div class="trilho fino"><div class="enchido" :style="{ width: (x.n / totalUsuarios) * 100 + '%' }" /></div>
+          </router-link>
+          <small v-if="dist.pais?.some((x) => x.pais === '??')" class="muted">"Sem localização": ainda sem login com IP registrado ou na fila da busca.</small>
+        </div>
+        <div class="card">
+          <div class="linha entre" style="margin-bottom: 10px"><h3>Cidades que mais aparecem</h3><small class="muted">aproximado, pelo IP</small></div>
+          <div v-for="x in dist.cidades" :key="x.cidade + x.pais" class="dist">
+            <div class="linha entre"><span class="linha" style="gap: 8px; flex-wrap: nowrap"><Pais :codigo="x.pais" curto /><span class="corta">{{ x.cidade }}<small v-if="x.estado" class="muted"> · {{ x.estado }}</small></span></span><small>{{ x.n }}</small></div>
+            <div class="trilho fino"><div class="enchido" :style="{ width: (x.n / maxCidade) * 100 + '%' }" /></div>
+          </div>
+          <div v-if="!dist.cidades?.length" class="vazio">A busca pelo IP ainda está rodando. Volte em alguns minutos.</div>
+        </div>
+      </div>
+
       <div v-if="dist" class="grade g3" style="margin-top: 14px">
         <div v-for="(t, k) in { idioma: 'Idioma do app', sexo: 'Sexo', objetivo: 'Objetivo principal' }" :key="k" class="card">
           <h3 style="margin-bottom: 10px">{{ t }}</h3>
@@ -176,6 +198,8 @@ const lista = (obj) => {
 .atalho { display: flex; align-items: center; gap: 10px; color: var(--text); font-weight: 600; padding: 14px 16px; }
 .atalho:hover { border-color: var(--muted); }
 .dist { margin-bottom: 10px; }
+.link-dist { display: block; color: var(--text); border-radius: 8px; }
+.link-dist:hover { background: var(--surface2); }
 tr.total td { font-weight: 700; background: var(--surface2); }
 @media (max-width: 900px) { .grade[style*='2fr'] { grid-template-columns: 1fr !important; } }
 </style>

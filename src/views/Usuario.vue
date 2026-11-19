@@ -2,10 +2,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { rpc, pode, sb } from '../lib/supabase'
-import { num, data, dataHora, desde, usd, avisar, erro, confirmar, nomesOrigem } from '../lib/util'
+import { num, data, dataHora, desde, usd, avisar, erro, confirmar, nomesOrigem, nomePais } from '../lib/util'
 import Avatar from '../components/Avatar.vue'
 import Icone from '../components/Icone.vue'
 import Modal from '../components/Modal.vue'
+import Pais from '../components/Pais.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -26,6 +27,15 @@ async function carregar() {
 onMounted(carregar)
 
 const p = computed(() => u.value?.perfil ?? {})
+const localDica = computed(() => {
+  const x = p.value
+  const partes = []
+  if (x.pais_aparelho) partes.push(`País pelo celular: ${nomePais(x.pais_aparelho)}`)
+  if (x.pais_ip) partes.push(`Pelo IP: ${[x.cidade, x.estado, nomePais(x.pais_ip)].filter(Boolean).join(', ')} (aproximado)`)
+  if (x.geo_rede) partes.push(`Rede: ${x.geo_rede}`)
+  if (x.geo_em) partes.push(`Atualizado em ${dataHora(x.geo_em)}`)
+  return partes.join(' · ')
+})
 const banido = computed(() => p.value.banido_ate && new Date(p.value.banido_ate) > new Date())
 const proPago = computed(() => u.value?.assinatura?.is_premium && (!u.value.assinatura.expiration_date || new Date(u.value.assinatura.expiration_date) > new Date()))
 const cortesiaAte = computed(() => u.value?.cortesia?.ate && new Date(u.value.cortesia.ate) > new Date() ? u.value.cortesia.ate : null)
@@ -105,8 +115,10 @@ const nomeFunil = { abriu: 'Abriu o app', onboarding: 'Fez onboarding', salvou_c
             <span v-if="u.equipe" class="tag verde">Equipe</span>
             <span class="tag">{{ nomesOrigem(p.origem || 'orgânico') }}</span>
             <span class="tag">{{ (p.idioma || 'pt').toUpperCase() }}</span>
+            <span v-if="p.pais_aparelho || p.pais_ip" class="tag" :title="localDica"><Pais :codigo="p.pais_aparelho || p.pais_ip" />{{ p.cidade ? ' · ' + p.cidade + (p.estado ? ', ' + p.estado : '') : '' }}</span>
             <span v-if="u.provedor" class="tag">{{ u.provedor }}</span>
           </div>
+          <small v-if="localDica" class="muted" style="display: block; margin-top: 6px">{{ localDica }}</small>
         </div>
         <div class="acoes">
           <button v-if="pode('usuarios.pro')" class="btn" @click="abrir('pro')"><Icone nome="coroa" :tam="16" /> Dar PRO</button>
