@@ -16,7 +16,7 @@ const nomes = {
   'comunidade.apagar_comentario': 'Apagou comentário', 'grupo.salvar': 'Salvou grupo', 'grupo.apagar': 'Apagou grupo', 'exercicio.salvar': 'Salvou exercício',
   'categoria.salvar': 'Salvou grupo muscular', 'evento.salvar': 'Salvou evento', 'evento.cancelar': 'Cancelou evento', 'evento.reativar': 'Reativou evento',
   'pergunta.salvar': 'Salvou pergunta', 'pergunta.apagar': 'Apagou pergunta', 'push.enviar': 'Enviou push', 'config.manutencao': 'Mudou manutenção',
-  'config.versao_minima': 'Mudou versão mínima', 'config.aviso': 'Mudou aviso da Home', 'suporte.responder': 'Respondeu chamado', 'suporte.status': 'Mudou status do chamado',
+  'config.versao_minima': 'Mudou versão mínima', 'config.aviso': 'Mudou aviso da Home', 'suporte.responder': 'Respondeu chamado', 'suporte.status': 'Mudou status do chamado', 'sistema.limpar_anonimos': 'Limpeza automática de contas sem cadastro',
 }
 const perigosas = ['usuario.apagar', 'usuario.banir', 'push.enviar', 'config.manutencao', 'equipe.salvar', 'equipe.remover']
 

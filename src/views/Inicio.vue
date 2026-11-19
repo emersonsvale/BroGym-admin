@@ -36,8 +36,9 @@ const meta = computed(() => {
   const alvo = r.value.meta_contas
   const fim = new Date(r.value.meta_data + 'T23:59:59-03:00')
   const faltamDias = Math.max(0, Math.ceil((fim - Date.now()) / 864e5))
-  const faltam = Math.max(0, alvo - r.value.usuarios)
-  return { alvo, faltamDias, faltam, porDia: faltamDias ? Math.ceil(faltam / faltamDias) : faltam, progresso: Math.min(100, (r.value.usuarios / alvo) * 100) }
+  // A meta conta só contas salvas (com Google/e-mail). As anônimas aparecem à parte.
+  const faltam = Math.max(0, alvo - r.value.salvos)
+  return { alvo, faltamDias, faltam, porDia: faltamDias ? Math.ceil(faltam / faltamDias) : faltam, progresso: Math.min(100, (r.value.salvos / alvo) * 100) }
 })
 
 const funilTotal = computed(() => funil.value.reduce((t, f) => {
@@ -73,8 +74,9 @@ const lista = (obj) => {
       <div class="card meta surge" style="margin-bottom: 14px">
         <div class="linha entre">
           <div>
-            <small style="font-weight: 600">Meta: {{ num(meta.alvo) }} contas até 31/12</small>
-            <div class="titulo" style="font-size: 34px; font-weight: 800">{{ num(r.usuarios) }} <span class="muted" style="font-size: 18px; font-weight: 600">/ {{ num(meta.alvo) }}</span></div>
+            <small style="font-weight: 600">Meta: {{ num(meta.alvo) }} contas salvas até 31/12</small>
+            <div class="titulo" style="font-size: 34px; font-weight: 800">{{ num(r.salvos) }} <span class="muted" style="font-size: 18px; font-weight: 600">/ {{ num(meta.alvo) }}</span></div>
+            <small>+ {{ num(r.anonimos) }} sem cadastro (ainda não salvaram a conta)</small>
           </div>
           <div style="text-align: right">
             <div class="titulo" style="font-size: 22px; font-weight: 800">{{ num(meta.porDia) }}/dia</div>
