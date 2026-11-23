@@ -20,8 +20,13 @@ async function link() {
   // shouldCreateUser: false → o painel nunca cria conta nova.
   const { error } = await sb.auth.signInWithOtp({ email: email.value.trim(), options: { shouldCreateUser: false, emailRedirectTo: location.origin + '/' } })
   ocupado.value = false
-  if (error) msgErro.value = error.message.includes('Signups not allowed') ? 'Esse e-mail não tem conta no BroGym.' : error.message
-  else enviado.value = true
+  if (!error) { enviado.value = true; return }
+  const m = (error.message || '').toLowerCase()
+  if (m.includes('signups not allowed')) msgErro.value = 'Esse e-mail não tem conta no BroGym.'
+  // O e-mail grátis do Supabase só manda poucos links por hora.
+  else if (m.includes('rate limit') || error.status === 429) msgErro.value = 'Muitos links pedidos agora. Entre com Google (botão acima) ou tente de novo daqui a 1 hora.'
+  else if (m.includes('for security purposes')) msgErro.value = 'Espere uns segundos antes de pedir outro link.'
+  else msgErro.value = error.message
 }
 </script>
 
